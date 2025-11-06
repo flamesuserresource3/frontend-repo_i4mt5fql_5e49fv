@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarCheck, QrCode, Send, CheckCircle2, CircleX, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Attendance = () => {
   const [code, setCode] = useState('');
@@ -17,7 +18,8 @@ const Attendance = () => {
   };
 
   return (
-    <section className="bg-gray-50 py-10">
+    <section className="relative bg-gray-50 py-12">
+      <div className="pointer-events-none absolute inset-x-0 -top-10 h-24 bg-gradient-to-b from-white to-transparent" />
       <div className="mx-auto max-w-7xl px-4">
         <div className="mb-6 flex items-end justify-between">
           <div>
@@ -30,56 +32,94 @@ const Attendance = () => {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-[1fr_auto]">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Kode Presensi</label>
-                  <input
-                    type="text"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="Masukkan kode, contoh: 7X3KD"
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow-sm transition hover:bg-indigo-700 sm:mt-auto"
+          <motion.div
+            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              <div className="p-6">
+                <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-[1fr_auto]">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Kode Presensi</label>
+                    <input
+                      type="text"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="Masukkan kode, contoh: 7X3KD"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow-sm transition hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.99] sm:mt-auto"
+                  >
+                    <Send size={16} /> Kirim Presensi
+                  </button>
+                </form>
+
+                <AnimatePresence>
+                  {status === 'success' && (
+                    <motion.div
+                      key="ok"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      className="mt-4 flex items-center gap-3 rounded-lg bg-emerald-50 p-3 text-emerald-700 ring-1 ring-emerald-200"
+                    >
+                      <CheckCircle2 size={18} /> Presensi tercatat. Selamat belajar!
+                    </motion.div>
+                  )}
+                  {status === 'error' && (
+                    <motion.div
+                      key="err"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      className="mt-4 flex items-center gap-3 rounded-lg bg-rose-50 p-3 text-rose-700 ring-1 ring-rose-200"
+                    >
+                      <CircleX size={18} /> Kode tidak valid. Coba lagi atau hubungi dosen.
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.div
+                  className="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                  <Send size={16} /> Kirim Presensi
-                </button>
-              </form>
-
-              {status === 'success' && (
-                <div className="mt-4 flex items-center gap-3 rounded-lg bg-emerald-50 p-3 text-emerald-700 ring-1 ring-emerald-200">
-                  <CheckCircle2 size={18} /> Presensi tercatat. Selamat belajar!
-                </div>
-              )}
-              {status === 'error' && (
-                <div className="mt-4 flex items-center gap-3 rounded-lg bg-rose-50 p-3 text-rose-700 ring-1 ring-rose-200">
-                  <CircleX size={18} /> Kode tidak valid. Coba lagi atau hubungi dosen.
-                </div>
-              )}
-
-              <div className="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-2 py-1 text-[11px] text-gray-700 ring-1 ring-gray-200">
-                  <Info size={12} /> Tips presensi
-                </div>
-                <ul className="list-inside list-disc space-y-1">
-                  <li>Gunakan kode yang masih aktif pada jam kuliah.</li>
-                  <li>Pastikan nama dan NIM di profil sudah benar.</li>
-                  <li>Jika terkendala, gunakan jaringan kampus untuk kestabilan.</li>
-                </ul>
+                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-2 py-1 text-[11px] text-gray-700 ring-1 ring-gray-200">
+                    <Info size={12} /> Tips presensi
+                  </div>
+                  <ul className="list-inside list-disc space-y-1">
+                    <li>Gunakan kode yang masih aktif pada jam kuliah.</li>
+                    <li>Pastikan nama dan NIM di profil sudah benar.</li>
+                    <li>Jika terkendala, gunakan jaringan kampus untuk kestabilan.</li>
+                  </ul>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-              <div className="mx-auto mb-3 grid h-28 w-28 place-content-center rounded-xl bg-indigo-50 text-indigo-700">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mx-auto mb-3 grid h-28 w-28 place-content-center rounded-xl bg-indigo-50 text-indigo-700"
+              >
                 <QrCode size={48} className="mx-auto" />
-              </div>
+              </motion.div>
               <p className="text-base font-semibold text-gray-900">Presensi via Kode</p>
               <p className="mt-1 text-sm text-gray-600">Dosen membagikan kode unik tiap sesi. Masukkan kode untuk konfirmasi kehadiran.</p>
               <hr className="my-4" />
@@ -89,7 +129,7 @@ const Attendance = () => {
                 <div className="rounded-lg bg-rose-50 p-2 text-rose-700">Alfa</div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
